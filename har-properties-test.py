@@ -26,7 +26,7 @@ for i in range(5):
                 image="datagap/dataingestion",
                 image_pull_policy='IfNotPresent',
                 cmds=["sh","-c", "dotnet DataIngestion.dll"],
-                arguments=['dip-cluster-kafka-bootstrap.stream.svc.cluster.local:9092 har-properties-topic https://api.bridgedataoutput.com/api/v2/OData/har/Property/replication?access_token=c28535e677fb3fdf78253a99d3c5c1b2&$filter=date(ModificationTimestamp) eq 2020-02-' + str(i+1)]
+                arguments=['dip-cluster-kafka-bootstrap.stream.svc.cluster.local:9092 har-properties-topic https://api.bridgedataoutput.com/api/v2/OData/har/Property/replication?access_token=c28535e677fb3fdf78253a99d3c5c1b2&$filter=date(ModificationTimestamp) eq 2020-02-' + str(i+1)],
                 annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
                 name="har-properties-test",
                 task_id="create-ingestion-pod-task-" + str(i+1),
