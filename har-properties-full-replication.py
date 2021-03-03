@@ -5,10 +5,10 @@ from airflow.operators.dummy_operator import DummyOperator
 
 
 default_args = {
-    'owner': 'airflow',
+    'owner': 'datagap',
     'depends_on_past': False,
     'start_date': datetime.utcnow(),
-    'email': ['airflow@example.com'],
+    'email': ['truong@datagap.io'],
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
@@ -16,32 +16,22 @@ default_args = {
 }
 
 dag = DAG(
-    'kubernetes_sample', default_args=default_args, schedule_interval=timedelta(minutes=10))
+    'har-properties-full', default_args=default_args, schedule_interval=None)
 
 
-start = DummyOperator(task_id='run_this_first', dag=dag)
+start = DummyOperator(task_id='start', dag=dag)
 
-passing = KubernetesPodOperator(namespace='default',
-                          image="Python:3.6",
-                          cmds=["Python","-c"],
-                          arguments=["print('hello world')"],
-                          labels={"foo": "bar"},
-                          name="passing-test",
-                          task_id="passing-task",
+
+
+ingestion = KubernetesPodOperator(namespace='ingestion',
+                          image="datagap/dataingestion",
+                          image_pull_policy='IfNotPresent',
+                          cmds=["sh","-c", "dotnet DataIngestion.dll 'dip-cluster-kafka-bootstrap.stream.svc.cluster.local:9092' 'har-properties-topic' 'https://api.bridgedataoutput.com/api/v2/OData/har/Property/replication?access_token=c28535e677fb3fdf78253a99d3c5c1b2&$filter=date(ModificationTimestamp) eq 2021-02-12'"],
+                          annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
+                          name="current-year",
+                          task_id="current-year-task",
                           get_logs=True,
                           dag=dag
                           )
-
-failing = KubernetesPodOperator(namespace='default',
-                          image="ubuntu:1604",
-                          cmds=["Python","-c"],
-                          arguments=["print('hello world')"],
-                          labels={"foo": "bar"},
-                          name="fail",
-                          task_id="failing-task",
-                          get_logs=True,
-                          dag=dag
-                          )
-
-passing.set_upstream(start)
-failing.set_upstream(start)
+                          
+ingestion.set_upstream(start)
