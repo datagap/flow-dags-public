@@ -34,7 +34,7 @@ for i in range(11):
                 image_pull_policy='IfNotPresent',
                 cmds=["sh","-c", "dotnet DataIngestion.dll 'dip-cluster-kafka-bootstrap.stream.svc.cluster.local:9092' 'har-properties-topic' '{link}'".format(link=url)],
                 annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
-                task_id="deploy-ingestion-pod-task" + str(year),
+                task_id="deploy-ingestion-pod-task-" + str(year),
                 name="har-properties-full-pod-" + str(year),
                 get_logs=True,
                 dag=dag
