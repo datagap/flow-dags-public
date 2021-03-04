@@ -2,12 +2,12 @@ from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.operators.dummy_operator import DummyOperator
-
+from airflow.utils.dates import days_ago
 
 default_args = {
     'owner': 'datagap',
     'depends_on_past': False,
-    'start_date': datetime(2021, 3, 5),
+    'start_date': days_ago(-1),
     'email': ['truong@datagap.io'],
     'email_on_failure': False,
     'email_on_retry': False,
