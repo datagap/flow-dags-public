@@ -31,6 +31,7 @@ for i in range(5):
                 annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
                 name="har-properties-test",
                 task_id="create-ingestion-pod-task-" + str(i+1),
+                name="create-ingestion-pod-task-" + str(i+1),
                 get_logs=True,
                 dag=dag
             )
