@@ -26,7 +26,6 @@ year = year = datetime.now().year
 
 # ingestion 10 years
 for i in range(11):
-    year = year - i
     url = 'https://api.bridgedataoutput.com/api/v2/OData/har/Property/replication?access_token=c28535e677fb3fdf78253a99d3c5c1b2&$filter=date(ModificationTimestamp) eq {y}'.format(y=year)
     
     task = KubernetesPodOperator(namespace='ingestion',
@@ -41,4 +40,6 @@ for i in range(11):
             )
 
     start >> task
+    # another year
+    year = year - 1
     
