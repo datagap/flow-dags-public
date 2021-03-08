@@ -5,18 +5,15 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.dates import days_ago
 
 default_args = {
-    'owner': 'datagap',
-    'depends_on_past': False,
-    'start_date': datetime.now(),
-    'email': ['truong@datagap.io'],
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'owner': 'datagap'
 }
 
 dag = DAG(
-    'har-properties-daily', default_args=default_args, schedule_interval='0 1 * * *')
+    'har-properties-daily', 
+    default_args=default_args,
+    schedule_interval='0 1 * * *',
+    start_dates=datetime.now()
+)
 
 
 start = DummyOperator(task_id='start', dag=dag)
