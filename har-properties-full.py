@@ -16,7 +16,7 @@ default_args = {
 }
 
 dag = DAG(
-    'har-properties-full', default_args=default_args, schedule_interval='@once')
+    'har-properties-full', default_args=default_args, schedule_interval=None)
 
 
 start = DummyOperator(task_id='start', dag=dag)

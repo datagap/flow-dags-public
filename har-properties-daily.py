@@ -7,7 +7,7 @@ from airflow.utils.dates import days_ago
 default_args = {
     'owner': 'datagap',
     'depends_on_past': False,
-    'start_date': datetime(2021, 3, 9),
+    'start_date': datetime.now(),
     'email': ['truong@datagap.io'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -16,7 +16,7 @@ default_args = {
 }
 
 dag = DAG(
-    'har-properties-daily', default_args=default_args, schedule_interval='@daily')
+    'har-properties-daily', default_args=default_args, schedule_interval='0 1 * * *')
 
 
 start = DummyOperator(task_id='start', dag=dag)
