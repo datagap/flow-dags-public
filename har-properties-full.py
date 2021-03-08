@@ -7,7 +7,7 @@ from airflow.operators.dummy_operator import DummyOperator
 default_args = {
     'owner': 'datagap',
     'depends_on_past': False,
-    'start_date': datetime(2021, 3, 8),
+    'start_date': datetime.now(),
     'email': ['truong@datagap.io'],
     'email_on_failure': False,
     'email_on_retry': False,
