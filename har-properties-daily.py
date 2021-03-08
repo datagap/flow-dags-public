@@ -7,7 +7,7 @@ from airflow.utils.dates import days_ago
 default_args = {
     'owner': 'datagap',
     'depends_on_past': False,
-    'start_date': days_ago(-1),
+    'start_date': datetime(2021, 3, 9),
     'email': ['truong@datagap.io'],
     'email_on_failure': False,
     'email_on_retry': False,

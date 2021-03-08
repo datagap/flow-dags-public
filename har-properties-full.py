@@ -7,7 +7,7 @@ from airflow.operators.dummy_operator import DummyOperator
 default_args = {
     'owner': 'datagap',
     'depends_on_past': False,
-    'start_date': datetime.utcnow(),
+    'start_date': datetime(2021, 3, 8),
     'email': ['truong@datagap.io'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -16,7 +16,7 @@ default_args = {
 }
 
 dag = DAG(
-    'har-properties-full', default_args=default_args, schedule_interval=None)
+    'har-properties-full', default_args=default_args, schedule_interval='@once')
 
 
 start = DummyOperator(task_id='start', dag=dag)
