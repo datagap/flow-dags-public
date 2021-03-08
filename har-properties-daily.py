@@ -12,7 +12,7 @@ dag = DAG(
     'har-properties-daily', 
     default_args=default_args,
     schedule_interval='0 1 * * *',
-    start_dates=datetime.now()
+    start_date=datetime.now()
 )
 
 
