@@ -19,7 +19,7 @@ dag = DAG(
 t1 = SimpleHttpOperator(
     task_id='get_druid_tasks',
     method='GET',
-    http_conn_id='http://druid-druid-cluster-routers.data.svc.cluster.local//druid­/in­dex­er/­v1',
+    http_conn_id='druid-indexer',
     endpoint='tasks',
     headers={"Content-Type": "application/json"},
     response_check=lambda response: True if len(response.json()) == 0 else False,
