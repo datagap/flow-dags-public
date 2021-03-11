@@ -42,7 +42,7 @@ for i in range(11):
                 name="har-properties-loader-pod-" + str(year),
                 volumes=[volume],
                 volume_mounts=[volume_mount],
-                get_logs=True
+                get_logs=True,
                 dag=dag
             )
 
