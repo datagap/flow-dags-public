@@ -44,6 +44,7 @@ with DAG(
                     name="har-properties-loader-pod-" + str(year),
                     volumes=[volume],
                     volume_mounts=[volume_mount],
+                    is_delete_operator_pod=True,
                     get_logs=True
                 )
 
