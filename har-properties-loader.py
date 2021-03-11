@@ -1,6 +1,6 @@
 from airflow import DAG
 from datetime import datetime, timedelta
-from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s
 
@@ -15,13 +15,13 @@ dag = DAG(
     start_date=datetime.now()
 )
 
-volume_mount = k8s.V1VolumeMount(
-    name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
-)
-
 volume = k8s.V1Volume(
     name='data-volume',
-    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='shared-data-volume'),
+    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='shared-data-volume')
+)
+
+volume_mount = k8s.V1VolumeMount(
+    name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
 )
 
 start = DummyOperator(task_id='start', dag=dag)
