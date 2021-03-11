@@ -18,8 +18,6 @@ volume_mount = k8s.V1VolumeMount(
     name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
 )
 
-≈
-
 # current year
 year = year = datetime.now().year
 
