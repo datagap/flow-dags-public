@@ -9,7 +9,7 @@ default_args = {
 }
 
 dag = DAG(
-    'har-properties-full', 
+    'har-properties-kafka', 
     default_args=default_args, 
     schedule_interval=None,
     start_date=datetime.now()
