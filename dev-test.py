@@ -68,8 +68,8 @@ with DAG(
         )
 
     for i in tasks:
-      if i not in tasks[0]
-        tasks[i-1] >> wait >> tasks[1]
+      if i not in [0]
+        tasks[i-1] >> wait >> tasks[i]
     
     start >> tasks[0]
       
