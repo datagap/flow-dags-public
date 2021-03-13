@@ -38,7 +38,7 @@ with DAG(
         
         task = KubernetesPodOperator(namespace='data',
                     image="datagap/dataloader:latest",
-                    image_pull_policy='IfNotPresent',
+                    image_pull_policy='Always',
                     cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-{year}'".format(link=url,year=year)],
                     annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
                     task_id="deploy-data-loader-pod-task-" + str(year),
