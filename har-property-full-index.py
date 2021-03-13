@@ -30,11 +30,11 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
-def work(*args)
-    baseDir = 'har-{year}'.format(year=year)
-    template = replace(templateContent, baseDir, harPropDataSource)
+# def work(*args)
+#     baseDir = 'har-{year}'.format(year=year)
+#     template = replace(templateContent, baseDir, harPropDataSource)
 
-    print(template)
+#     print(template)
 
 with DAG(
     dag_id='har-properties-full-index',
@@ -57,12 +57,12 @@ with DAG(
 
     for year in years:
         
-        task = PythonOperator(
-            task_id='submit',
-            python_callable=work,
-            templateContent=templateContent,
-            year=year,
-            harPropDataSource=harPropDataSource)
+        # task = PythonOperator(
+        #     task_id='submit',
+        #     python_callable=work,
+        #     templateContent=templateContent,
+        #     year=year,
+        #     harPropDataSource=harPropDataSource)
 
-        start >> task >> wait
+        start >> wait
     
