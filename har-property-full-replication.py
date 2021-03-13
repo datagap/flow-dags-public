@@ -18,11 +18,8 @@ volume_mount = k8s.V1VolumeMount(
     name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
 )
 
-# current year
-year = year = datetime.now().year
-
 with DAG(
-    dag_id='har-properties-loader',
+    dag_id='har-properties-full-replication',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
@@ -31,8 +28,9 @@ with DAG(
 
     start = DummyOperator(task_id='start')
 
-    # ingestion 10 years
-    for i in range(11):
+    years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
+
+    for year in years:
         url = 'https://api.bridgedataoutput.com/api/v2/OData/har/Property/replication?access_token=c28535e677fb3fdf78253a99d3c5c1b2&$filter=year(ModificationTimestamp) eq {y}'.format(y=year)
         
         task = KubernetesPodOperator(namespace='data',
@@ -49,6 +47,4 @@ with DAG(
                 )
 
         start >> task
-        # another year
-        year = year - 1
     
