@@ -35,9 +35,7 @@ def work(templateContent, year, harPropDataSource):
   baseDir = 'har-{year}'.format(year=year)
   template = replace(templateContent, baseDir, harPropDataSource)
 
-  print(template)
-
-  time.sleep(20)
+  return template
 
 def sleep():
   time.sleep(20)
@@ -64,9 +62,19 @@ with DAG(
     index = 0
 
     for year in years:
+      indexSpec = work(templateContent, year, harPropDataSource)
+      # SimpleHttpOperator(
+      #   task_id='submit-index-' + year,
+      #   method='POST',
+      #   http_conn_id='druid-cluster',
+      #   endpoint='druid/indexer/v1/tasks',
+      #   headers={"Content-Type": "application/json"},
+      #   data=json.dumps(indexSpec),
+      #   response_check=lambda response: True if "task" in response.content else False)
+
       tasks.append(
         PythonOperator(
-          task_id='submit-' + year,
+          task_id='submit-index-' + year,
           python_callable=work,
           op_kwargs={'templateContent': templateContent, 
                       'year': year,

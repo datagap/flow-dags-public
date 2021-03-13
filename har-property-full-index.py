@@ -7,6 +7,7 @@ import json
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.python_operator import PythonOperator
+import time
 
 default_args = {
     'owner': 'datagap'
@@ -30,39 +31,55 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
-# def work(*args)
-#     baseDir = 'har-{year}'.format(year=year)
-#     template = replace(templateContent, baseDir, harPropDataSource)
+def work(templateContent, year, harPropDataSource):
+  baseDir = 'har-{year}'.format(year=year)
+  template = replace(templateContent, baseDir, harPropDataSource)
 
-#     print(template)
+  return template
 
 with DAG(
-    dag_id='har-properties-full-index',
+    dag_id='test-dev',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['har'],
+    tags=['test'],
 ) as dag:
 
     start = DummyOperator(task_id='start')
 
-    wait = BashOperator(
-        task_id='wait_20_mins',
-        bash_command="sleep 20m"
-    )
+    # wait = BashOperator(
+    #     task_id='wait_20_sec',
+    #     bash_command="sleep 20"
+    # )
 
     templateContent = download(templateUrl)
 
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
+    tasks = []
+    index = 0
 
     for year in years:
+        indexSpec = work(templateContent, year, harPropDataSource)
         
-        # task = PythonOperator(
-        #     task_id='submit',
-        #     python_callable=work,
-        #     templateContent=templateContent,
-        #     year=year,
-        #     harPropDataSource=harPropDataSource)
+        tasks.append(
+            SimpleHttpOperator(
+                task_id='submit-index-' + year,
+                method='POST',
+                http_conn_id='druid-cluster',
+                endpoint='druid/indexer/v1/tasks',
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(indexSpec),
+                response_check=lambda response: True if "task" in response.content else False)
+            )
 
-        start >> wait
+        # sequential, wait in between
+        if index > 0:
+        tasks[index-1] >> tasks[index]
+
+        index = index + 1
+
+        time.sleep(300)
+
+    # start with first task
+    start >> tasks[0]
     
