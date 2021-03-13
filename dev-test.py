@@ -57,20 +57,22 @@ with DAG(
     tasks = []
 
     for year in years:
-        tasks.append(
-          PythonOperator(
-            task_id='submit-' + year,
-            python_callable=work,
-            op_kwargs={'templateContent': templateContent, 
-                        'baseDir': year,
-                        'harPropDataSource': harPropDataSource}
-          )
+      tasks.append(
+        PythonOperator(
+          task_id='submit-' + year,
+          python_callable=work,
+          op_kwargs={'templateContent': templateContent, 
+                      'baseDir': year,
+                      'harPropDataSource': harPropDataSource}
         )
+      )
 
-    for i in tasks:
-      if i not in [0]:
-        tasks[i-1] >> wait >> tasks[i]
+      # sequential, wait in between
+      if index > 0:
+        tasks[index-1] >> wait >> tasks[index]
+
+      index = index + 1
     
+    # start with first task
     start >> tasks[0]
-      
     
