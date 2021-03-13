@@ -39,7 +39,7 @@ def work(templateContent, year, harPropDataSource):
   return template
 
 with DAG(
-    dag_id='test-dev',
+    dag_id='har-property-full-index',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
@@ -66,7 +66,7 @@ with DAG(
                 task_id='submit-index-' + year,
                 method='POST',
                 http_conn_id='druid-cluster',
-                endpoint='druid/indexer/v1/tasks',
+                endpoint='druid/indexer/v1/task',
                 headers={"Content-Type": "application/json"},
                 data=json.dumps(indexSpec),
                 response_check=lambda response: True if "task" in response.content else False)
