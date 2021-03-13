@@ -8,6 +8,7 @@ from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.python_operator import PythonOperator
 import time
+from airflow.operators.http_operator import SimpleHttpOperator
 
 default_args = {
     'owner': 'datagap'
