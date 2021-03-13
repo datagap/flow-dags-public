@@ -50,7 +50,7 @@ with DAG(
 
     templateContent = download(templateUrl)
 
-    years = ["2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
+    years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
     tasks = []
     index = 0
 
@@ -58,8 +58,8 @@ with DAG(
         indexSpec = work(templateContent, year, harPropDataSource)
 
         wait = BashOperator(
-                task_id='wait-10-' + year,
-                bash_command="sleep 1m")
+                task_id='wait-for-20-' + year,
+                bash_command="sleep 20m")
 
         tasks.append(
             SimpleHttpOperator(
