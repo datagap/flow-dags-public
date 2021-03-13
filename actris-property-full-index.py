@@ -14,8 +14,8 @@ default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("har_prop_file_index_url")
-harPropDataSource = Variable.get("har_prop_datasource")
+templateUrl = Variable.get("actris_prop_file_index_url")
+actrisPropDataSource = Variable.get("actris_prop_datasource")
 
 def download(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -33,17 +33,17 @@ def replace(jsonContent, baseDir, dataSource):
   return result
 
 def work(templateContent, year, harPropDataSource):
-  baseDir = '/var/shared-data/har-{year}'.format(year=year)
-  template = replace(templateContent, baseDir, harPropDataSource)
+  baseDir = '/var/shared-data/actris-{year}'.format(year=year)
+  template = replace(templateContent, baseDir, actrisPropDataSource)
 
   return template
 
 with DAG(
-    dag_id='har-property-full-index',
+    dag_id='actris-property-full-index',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['har', 'index'],
+    tags=['actris', 'index'],
 ) as dag:
 
     start = DummyOperator(task_id='start')
@@ -55,7 +55,7 @@ with DAG(
     index = 0
 
     for year in years:
-        indexSpec = work(templateContent, year, harPropDataSource)
+        indexSpec = work(templateContent, year, actrisPropDataSource)
 
         wait = BashOperator(
                 task_id='wait-for-20m-' + year,

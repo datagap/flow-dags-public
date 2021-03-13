@@ -19,14 +19,14 @@ volume_mount = k8s.V1VolumeMount(
     name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
 )
 
-harUrl = Variable.get("har_prop_url")
+actrisUrl = Variable.get("actris_prop_url")
 
 with DAG(
-    dag_id='har-properties-full-replication',
+    dag_id='actris-properties-full-replication',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['har', 'replication'],
+    tags=['actris', 'replication'],
 ) as dag:
 
     start = DummyOperator(task_id='start')
@@ -34,15 +34,14 @@ with DAG(
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
 
     for year in years:
-        url = harUrl + ' {y}'.format(y=year)
+        url = actrisUrl + ' {y}'.format(y=year)
         
         task = KubernetesPodOperator(namespace='data',
                     image="datagap/dataloader",
                     image_pull_policy='IfNotPresent',
-                    cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-{year}'".format(link=url,year=year)],
-                    annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
+                    cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'actris-{year}'".format(link=url,year=year)],
                     task_id="deploy-data-loader-pod-task-" + str(year),
-                    name="har-properties-loader-pod-" + str(year),
+                    name="actris-properties-loader-pod-" + str(year),
                     volumes=[volume],
                     volume_mounts=[volume_mount],
                     is_delete_operator_pod=True,
