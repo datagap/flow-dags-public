@@ -33,7 +33,7 @@ def replace(jsonContent, baseDir, dataSource):
   return result
 
 def work(templateContent, year, harPropDataSource):
-  baseDir = 'har-{year}'.format(year=year)
+  baseDir = '/var/shared-data/har-{year}'.format(year=year)
   template = replace(templateContent, baseDir, harPropDataSource)
 
   return template
