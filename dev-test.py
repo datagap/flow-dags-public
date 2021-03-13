@@ -58,7 +58,7 @@ with DAG(
     for year in years:
         
         task = PythonOperator(
-            task_id='submit',
+            task_id='submit-' + year,
             python_callable=work,
             op_kwargs={'templateContent': templateContent, 
                         'baseDir': year,
