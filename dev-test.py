@@ -6,6 +6,7 @@ import urllib.request
 import json
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
+from airflow.operators.python_operator import PythonOperator
 
 default_args = {
     'owner': 'datagap'
@@ -29,8 +30,14 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
+def work(*args)
+    baseDir = 'har-{year}'.format(year=year)
+    template = replace(templateContent, baseDir, harPropDataSource)
+
+    print(template)
+
 with DAG(
-    dag_id='dev-test',
+    dag_id='test-dev',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
@@ -40,8 +47,8 @@ with DAG(
     start = DummyOperator(task_id='start')
 
     wait = BashOperator(
-        task_id='wait_10_sec',
-        bash_command="sleep 10"
+        task_id='wait_20_sec',
+        bash_command="sleep 20"
     )
 
     templateContent = download(templateUrl)
@@ -49,13 +56,13 @@ with DAG(
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
 
     for year in years:
-       
-        baseDir = 'har-{year}'.format(year=year)
-
-        template = replace(templateContent, baseDir, harPropDataSource)
-
-        print(template)
+        
+        task = PythonOperator(
+            task_id='submit',
+            python_callable=work,
+            templateContent=templateContent,
+            year=year,
+            harPropDataSource=harPropDataSource)
 
         start >> task >> wait
-        # sleep for 20 mins
     

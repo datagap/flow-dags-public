@@ -6,12 +6,13 @@ import urllib.request
 import json
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
+from airflow.operators.python_operator import PythonOperator
 
 default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("druid_file_index_url")
+templateUrl = Variable.get("har_prop_file_index_url")
 harPropDataSource = Variable.get("har_prop_datasource")
 
 def download(templateUrl):
@@ -28,6 +29,12 @@ def replace(jsonContent, baseDir, dataSource):
   result['spec']['dataSchema']['dataSource'] = dataSource
 
   return result
+
+def work(*args)
+    baseDir = 'har-{year}'.format(year=year)
+    template = replace(templateContent, baseDir, harPropDataSource)
+
+    print(template)
 
 with DAG(
     dag_id='har-properties-full-index',
@@ -49,13 +56,13 @@ with DAG(
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
 
     for year in years:
-        url = 'https://api.bridgedataoutput.com/api/v2/OData/har/Property/replication?access_token=c28535e677fb3fdf78253a99d3c5c1b2&$filter=year(ModificationTimestamp) eq {y}'.format(y=year)
         
-        baseDir = 'har-{year}'.format(year=year)
-
-        template = replace(templateContent, baseDir, harPropDataSource)
-
+        task = PythonOperator(
+            task_id='submit',
+            python_callable=work,
+            templateContent=templateContent,
+            year=year,
+            harPropDataSource=harPropDataSource)
 
         start >> task >> wait
-        # sleep for 20 mins
     
