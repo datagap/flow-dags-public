@@ -58,7 +58,7 @@ with DAG(
         indexSpec = work(templateContent, year, harPropDataSource)
 
         wait = BashOperator(
-                task_id='wait-10-' + year
+                task_id='wait-10-' + year,
                 bash_command="sleep 1m")
 
         tasks.append(
