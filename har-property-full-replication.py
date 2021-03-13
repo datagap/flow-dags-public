@@ -37,7 +37,7 @@ with DAG(
         url = harUrl + ' {y}'.format(y=year)
         
         task = KubernetesPodOperator(namespace='data',
-                    image="datagap/dataloader",
+                    image="datagap/dataloader:latest",
                     image_pull_policy='IfNotPresent',
                     cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-{year}'".format(link=url,year=year)],
                     annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},

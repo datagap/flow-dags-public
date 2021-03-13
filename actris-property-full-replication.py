@@ -37,7 +37,7 @@ with DAG(
         url = actrisUrl + ' {y}'.format(y=year)
         
         task = KubernetesPodOperator(namespace='data',
-                    image="datagap/dataloader",
+                    image="datagap/dataloader:latest",
                     image_pull_policy='IfNotPresent',
                     cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'actris-{year}'".format(link=url,year=year)],
                     task_id="deploy-data-loader-pod-task-" + str(year),
