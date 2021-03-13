@@ -30,11 +30,11 @@ def replace(jsonContent, baseDir, dataSource):
   return result
 
 with DAG(
-    dag_id='har-properties-full-index',
+    dag_id='dev-test',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['har'],
+    tags=['test'],
 ) as dag:
 
     start = DummyOperator(task_id='start')
