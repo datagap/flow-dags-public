@@ -30,7 +30,7 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
-def work(*args)
+def work(*args):
     baseDir = 'har-{year}'.format(year=year)
     template = replace(templateContent, baseDir, harPropDataSource)
 
