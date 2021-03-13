@@ -37,7 +37,7 @@ def work(templateContent, year, harPropDataSource):
 
   print(template)
 
-def wait():
+def sleep():
   time.sleep(20)
 
 with DAG(
@@ -74,7 +74,7 @@ with DAG(
 
       # sequential, wait in between
       if index > 0:
-        tasks[index-1] >> wait() >> tasks[index]
+        tasks[index-1] >> sleep() >> tasks[index]
 
       index = index + 1
     
