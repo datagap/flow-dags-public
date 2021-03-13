@@ -69,7 +69,7 @@ with DAG(
                 endpoint='druid/indexer/v1/task',
                 headers={"Content-Type": "application/json"},
                 data=json.dumps(indexSpec),
-                response_check=lambda response: True if response.status_code == 201 else False)
+                response_check=lambda response: True if response.status_code == 200 else False)
             )
 
         # sequential, wait in between
