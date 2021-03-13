@@ -54,16 +54,23 @@ with DAG(
     templateContent = download(templateUrl)
 
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
+    tasks = []
 
     for year in years:
-        
-        task = PythonOperator(
+        tasks.append(
+          PythonOperator(
             task_id='submit-' + year,
             python_callable=work,
             op_kwargs={'templateContent': templateContent, 
                         'baseDir': year,
                         'harPropDataSource': harPropDataSource}
           )
+        )
 
-        start >> task >> wait
+    for i in tasks
+      if i not in tasks[0]
+        tasks[i-1] >> wait >> tasks[1]
+    
+    start >> tasks[0]
+      
     
