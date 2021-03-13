@@ -7,6 +7,7 @@ import json
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.python_operator import PythonOperator
+import time
 
 default_args = {
     'owner': 'datagap'
@@ -31,10 +32,13 @@ def replace(jsonContent, baseDir, dataSource):
   return result
 
 def work(templateContent, year, harPropDataSource):
-    baseDir = 'har-{year}'.format(year=year)
-    template = replace(templateContent, baseDir, harPropDataSource)
+  baseDir = 'har-{year}'.format(year=year)
+  template = replace(templateContent, baseDir, harPropDataSource)
 
-    print(template)
+  print(template)
+
+def wait():
+  time.sleep(20)
 
 with DAG(
     dag_id='test-dev',
@@ -46,10 +50,10 @@ with DAG(
 
     start = DummyOperator(task_id='start')
 
-    wait = BashOperator(
-        task_id='wait_20_sec',
-        bash_command="sleep 20"
-    )
+    # wait = BashOperator(
+    #     task_id='wait_20_sec',
+    #     bash_command="sleep 20"
+    # )
 
     templateContent = download(templateUrl)
 
@@ -70,7 +74,7 @@ with DAG(
 
       # sequential, wait in between
       if index > 0:
-        tasks[index-1] >> tasks[index]
+        tasks[index-1] >> wait() >> tasks[index]
 
       index = index + 1
     
