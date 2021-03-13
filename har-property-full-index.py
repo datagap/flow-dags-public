@@ -68,7 +68,7 @@ with DAG(
                 http_conn_id='druid-cluster',
                 endpoint='druid/indexer/v1/task',
                 headers={"Content-Type": "application/json"},
-                data=json.dumps(indexSpec),
+                data=indexSpec,
                 response_check=lambda response: True if "task" in response.content else False)
             )
 
