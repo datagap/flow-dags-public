@@ -69,7 +69,7 @@ with DAG(
           task_id='submit-' + year,
           python_callable=work,
           op_kwargs={'templateContent': templateContent, 
-                      'baseDir': year,
+                      'year': year,
                       'harPropDataSource': harPropDataSource}
         )
       )
