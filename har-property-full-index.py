@@ -74,7 +74,7 @@ with DAG(
 
         # sequential, wait in between
         if index > 0:
-        tasks[index-1] >> tasks[index]
+            tasks[index-1] >> tasks[index]
 
         index = index + 1
 
