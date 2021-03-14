@@ -6,6 +6,8 @@ from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
 from airflow.operators.http_operator import SimpleHttpOperator
+import urllib.request
+import json
 
 default_args = {
     'owner': 'datagap'
