@@ -5,6 +5,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
+from airflow.operators.http_operator import SimpleHttpOperator
 
 default_args = {
     'owner': 'datagap'
@@ -20,6 +21,29 @@ volume_mount = k8s.V1VolumeMount(
 )
 
 harUrl = Variable.get("har_prop_delta_url")
+templateUrl = Variable.get("har_prop_file_index_url")
+harPropDataSource = Variable.get("har_prop_datasource")
+
+def downloadTemplate(templateUrl):
+  request = urllib.request.urlopen(templateUrl)
+  response = request.read().decode('utf-8')
+
+  return response
+
+def replace(jsonContent, baseDir, dataSource):
+  
+  result = json.loads(jsonContent)
+
+  result['spec']['ioConfig']['inputSource']['baseDir'] = baseDir
+  result['spec']['dataSchema']['dataSource'] = dataSource
+
+  return result
+
+def createIndexSpec(templateContent, harPropDataSource):
+  baseDir = '/var/shared-data/har-delta'
+  template = replace(templateContent, baseDir, harPropDataSource)
+
+  return template
 
 with DAG(
     dag_id='har-property-delta',
@@ -32,19 +56,32 @@ with DAG(
     yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
     url = harUrl + ' {d}'.format(d=yesterday)
 
+    templateContent = downloadTemplate(templateUrl)
+    indexSpec = createIndexSpec(templateContent, harPropDataSource)
+
     start = DummyOperator(task_id='start')
 
-    task = KubernetesPodOperator(namespace='data',
+    load = KubernetesPodOperator(namespace='data',
                 image="datagap/dataloader:latest",
                 image_pull_policy='Always',
                 cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-delta'".format(link=url)],
-                task_id="deploy-har-delta-pod-task-" + str(yesterday),
-                name="har-properties-delta-pod-" + str(yesterday),
+                task_id="load-property-delta-task-" + str(yesterday),
+                name="load-property-delta-task-" + str(yesterday),
                 volumes=[volume],
                 volume_mounts=[volume_mount],
                 is_delete_operator_pod=True,
                 get_logs=True
             )
 
-    start >> task
+    index = SimpleHttpOperator(
+                task_id='submit-property-index-' + yesterday,
+                method='POST',
+                http_conn_id='druid-cluster',
+                endpoint='druid/indexer/v1/task',
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(indexSpec),
+                response_check=lambda response: True if response.status_code == 200 else False)
+            
+
+    start >> load >> index
     
