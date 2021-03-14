@@ -23,7 +23,7 @@ volume_mount = k8s.V1VolumeMount(
 )
 
 harUrl = Variable.get("har_prop_delta_url")
-templateUrl = Variable.get("har_prop_file_index_url")
+templateUrl = Variable.get("har_prop_index_url")
 harPropDataSource = Variable.get("har_prop_datasource")
 
 def downloadTemplate(templateUrl):

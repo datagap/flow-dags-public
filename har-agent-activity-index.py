@@ -55,7 +55,7 @@ with DAG(
     start = DummyOperator(task_id='start')
 
     wait = BashOperator(
-                task_id='wait-for-30m-' + year,
+                task_id='wait-for-30m',
                 bash_command="sleep 30m")
 
     listTask = SimpleHttpOperator(
