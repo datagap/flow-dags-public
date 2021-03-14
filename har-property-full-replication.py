@@ -33,16 +33,6 @@ with DAG(
 
     start = DummyOperator(task_id='start')
 
-    trigger = TriggerDagRunOperator(
-        task_id="trigger_index",
-        trigger_dag_id="har-property-full-index"
-    )
-
-    section = SubDagOperator(
-        task_id='section',
-        subdag=subdag('har-property-full-replication', 'section', args)
-    )
-
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
 
     for year in years:
@@ -60,5 +50,5 @@ with DAG(
                     get_logs=True
                 )
 
-        start >> section >> task >> trigger
+        start >> task
     
