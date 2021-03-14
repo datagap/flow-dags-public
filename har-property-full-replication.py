@@ -22,7 +22,7 @@ volume_mount = k8s.V1VolumeMount(
 harUrl = Variable.get("har_prop_url")
 
 with DAG(
-    dag_id='har-properties-full-replication',
+    dag_id='har-property-full-replication',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
@@ -40,7 +40,6 @@ with DAG(
                     image="datagap/dataloader:latest",
                     image_pull_policy='Always',
                     cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-{year}'".format(link=url,year=year)],
-                    annotations={'chaos.alpha.kubernetes.io/enabled': 'true'},
                     task_id="deploy-data-loader-pod-task-" + str(year),
                     name="har-properties-loader-pod-" + str(year),
                     volumes=[volume],
