@@ -32,7 +32,7 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
-def work(templateContent, year, harPropDataSource):
+def createIndexSpec(templateContent, year, harPropDataSource):
   baseDir = '/var/shared-data/har-{year}'.format(year=year)
   template = replace(templateContent, baseDir, harPropDataSource)
 
@@ -55,7 +55,7 @@ with DAG(
     index = 0
 
     for year in years:
-        indexSpec = work(templateContent, year, harPropDataSource)
+        indexSpec = createIndexSpec(templateContent, year, harPropDataSource)
 
         wait = BashOperator(
                 task_id='wait-for-15m-' + year,
