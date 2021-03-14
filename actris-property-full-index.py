@@ -58,8 +58,8 @@ with DAG(
         indexSpec = work(templateContent, year, actrisPropDataSource)
 
         wait = BashOperator(
-                task_id='wait-for-20m-' + year,
-                bash_command="sleep 20m")
+                task_id='wait-for-15m-' + year,
+                bash_command="sleep 15m")
 
         tasks.append(
             SimpleHttpOperator(

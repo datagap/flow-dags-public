@@ -5,6 +5,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 default_args = {
     'owner': 'datagap'
@@ -31,6 +32,11 @@ with DAG(
 
     start = DummyOperator(task_id='start')
 
+    trigger = TriggerDagRunOperator(
+        task_id="trigger_index",
+        trigger_dag_id="har-property-full-index"
+    )
+
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
 
     for year in years:
@@ -48,5 +54,5 @@ with DAG(
                     get_logs=True
                 )
 
-        start >> task
+        start >> task >> trigger
     
