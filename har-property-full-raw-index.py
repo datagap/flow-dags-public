@@ -14,7 +14,7 @@ default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("har_prop_index_url")
+templateUrl = Variable.get("har_prop_raw_index_url")
 harPropDataSource = Variable.get("har_prop_datasource")
 
 def download(templateUrl):
