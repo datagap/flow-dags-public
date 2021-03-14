@@ -6,6 +6,7 @@ from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.operators.subdag import SubDagOperator
 
 default_args = {
     'owner': 'datagap'
