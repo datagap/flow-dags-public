@@ -49,27 +49,28 @@ with DAG(
         # StatusChangeTimestamp|2020-01-01T00:00:00-2020-12-31T23:59:59
         query = 'StatusChangeTimestamp|{y}-01-01T00:00:00-{y}-12-31T23:59:59'.format(y=year)
         
-        task = KubernetesPodOperator(namespace='data',
-                    image="datagap/retsconnector:latest",
-                    image_pull_policy='Always',
-                    cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
-                    task_id="load-property-full-task-" + str(year),
-                    name="load-property-full-task-" + str(year),
-                    volumes=[volume],
-                    volume_mounts=[volume_mount],
-                    is_delete_operator_pod=True,
-                    get_logs=True,
-                    env_vars={
-                        'RETS_LOGIN_URL': login_url,
-                        'RETS_TYPE': rets_type,
-                        'RETS_SEARCH_LIMIT': search_limit,
-                        'RETS_PASSWORD': password,
-                        'RETS_USER_AGENT': user_agent,
-                        'WORKING_DIR': working_dir,
-                        'DIR_NAME': 'ntreis-' + year,
-                        'RETS_SERVER_VERSION': server_version,
-                        'RETS_USERNAME': username}
-                )
+        tasks.append(
+            KubernetesPodOperator(namespace='data',
+                image="datagap/retsconnector:latest",
+                image_pull_policy='Always',
+                cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
+                task_id="load-property-full-task-" + str(year),
+                name="load-property-full-task-" + str(year),
+                volumes=[volume],
+                volume_mounts=[volume_mount],
+                is_delete_operator_pod=True,
+                get_logs=True,
+                env_vars={
+                    'RETS_LOGIN_URL': login_url,
+                    'RETS_TYPE': rets_type,
+                    'RETS_SEARCH_LIMIT': search_limit,
+                    'RETS_PASSWORD': password,
+                    'RETS_USER_AGENT': user_agent,
+                    'WORKING_DIR': working_dir,
+                    'DIR_NAME': 'ntreis-' + year,
+                    'RETS_SERVER_VERSION': server_version,
+                    'RETS_USERNAME': username})
+        )
         
         if index > 0:
             tasks[index-1] >> tasks[index]
