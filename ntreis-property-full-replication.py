@@ -42,6 +42,8 @@ with DAG(
     start = DummyOperator(task_id='start')
 
     years = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
+    tasks = []
+    index = 0
 
     for year in years:
         # StatusChangeTimestamp|2020-01-01T00:00:00-2020-12-31T23:59:59
@@ -68,6 +70,13 @@ with DAG(
                         'RETS_SERVER_VERSION': server_version,
                         'RETS_USERNAME': username}
                 )
+        
+        if index > 0:
+            tasks[index-1] >> tasks[index]
 
-        start >> task
+        index = index + 1
+        
+
+    # start with first task
+    start >> tasks[0]
     
