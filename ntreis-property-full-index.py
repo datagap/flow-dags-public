@@ -14,8 +14,8 @@ default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("har_prop_index_url")
-harPropDataSource = Variable.get("har_prop_datasource")
+templateUrl = Variable.get("ntreis_prop_index_url")
+ntreisPropDataSource = Variable.get("ntreis_prop_datasource")
 
 def download(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -32,18 +32,18 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
-def createIndexSpec(templateContent, year, harPropDataSource):
-  baseDir = '/var/shared-data/har-{year}'.format(year=year)
-  template = replace(templateContent, baseDir, harPropDataSource)
+def createIndexSpec(templateContent, year, propDataSource):
+  baseDir = '/var/shared-data/ntreis-{year}'.format(year=year)
+  template = replace(templateContent, baseDir, propDataSource)
 
   return template
 
 with DAG(
-    dag_id='har-property-full-index',
+    dag_id='ntreis-property-full-index',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['har', 'index'],
+    tags=['ntreis', 'index'],
 ) as dag:
 
     start = DummyOperator(task_id='start')
@@ -55,7 +55,7 @@ with DAG(
     index = 0
 
     for year in years:
-        indexSpec = createIndexSpec(templateContent, year, harPropDataSource)
+        indexSpec = createIndexSpec(templateContent, year, ntreisPropDataSource)
 
         wait = BashOperator(
                 task_id='wait-for-10m-' + year,
