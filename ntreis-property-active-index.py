@@ -14,8 +14,8 @@ default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("ntreis_prop_sold_index_url")
-ntreisPropDataSource = Variable.get("ntreis_prop_sold_datasource")
+templateUrl = Variable.get("ntreis_prop_active_index_url")
+ntreisPropDataSource = Variable.get("ntreis_prop_active_datasource")
 
 def download(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -39,7 +39,7 @@ def createIndexSpec(templateContent, year, propDataSource):
   return template
 
 with DAG(
-    dag_id='ntreis-property-sold-index',
+    dag_id='ntreis-property-active-index',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
