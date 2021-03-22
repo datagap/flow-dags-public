@@ -58,8 +58,8 @@ with DAG(
         indexSpec = createIndexSpec(templateContent, year, ntreisPropDataSource)
 
         wait = BashOperator(
-                task_id='wait-for-10m-' + year,
-                bash_command="sleep 10m")
+                task_id='wait-for-5m-' + year,
+                bash_command="sleep 5m")
 
         tasks.append(
             SimpleHttpOperator(
