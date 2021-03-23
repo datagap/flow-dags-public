@@ -76,7 +76,7 @@ with DAG(
     # index interval in format 2020-01-01/2020-01-02
     intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
 
-    query = 'StatusChangeTimestamp|{d}T00:00:00-{d}T23:59:59'.format(d=yesterday)
+    query = 'StatusChangeTimestamp={d}T00:00:00-{d}T23:59:59'.format(d=yesterday)
     # sold
     soldTemplateContent = downloadTemplate(soldTemplateUrl)
     soldIndexSpec = createIndexSpec(soldTemplateContent, soldPropDataSource, intervals)
