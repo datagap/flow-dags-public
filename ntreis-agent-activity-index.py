@@ -17,7 +17,7 @@ default_args = {
 listUrl = Variable.get("ntreis_agent_list_activity_index_url")
 buyerUrl = Variable.get("ntreis_agent_buyer_activity_index_url")
 target = Variable.get("ntreis_agent_activity_datasource")
-source = Variable.get("ntreis_prop_datasource")
+source = Variable.get("ntreis_prop_sold_datasource")
 
 def download(templateUrl):
   request = urllib.request.urlopen(templateUrl)
