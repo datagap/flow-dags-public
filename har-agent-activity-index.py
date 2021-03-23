@@ -55,8 +55,8 @@ with DAG(
     start = DummyOperator(task_id='start')
 
     wait = BashOperator(
-                task_id='wait-for-10m',
-                bash_command="sleep 10m")
+                task_id='wait-for-15m',
+                bash_command="sleep 15m")
 
     listTask = SimpleHttpOperator(
             task_id='submit-agent-list-index',
