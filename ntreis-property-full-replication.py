@@ -53,7 +53,7 @@ with DAG(
             KubernetesPodOperator(namespace='data',
                 image="datagap/retsconnector:latest",
                 image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet RetsConnector.dll {query}".format(query=query)],
+                cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
                 task_id="load-property-full-task-" + str(year),
                 name="load-property-full-task-" + str(year),
                 volumes=[volume],

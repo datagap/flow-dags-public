@@ -75,7 +75,7 @@ with DAG(
     load = KubernetesPodOperator(namespace='data',
                     image="datagap/retsconnector:latest",
                     image_pull_policy='Always',
-                    cmds=["sh","-c", "dotnet RetsConnector.dll {query}".format(query=query)],
+                    cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
                     task_id="load-property-active-task",
                     name="load-property-active-task",
                     volumes=[volume],
