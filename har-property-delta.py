@@ -58,7 +58,7 @@ def createIndexSpec(templateContent, dataSource, intervals):
 with DAG(
     dag_id='har-property-delta',
     default_args=default_args,
-    schedule_interval="0 7 * * *",
+    schedule_interval="0 6 * * *",
     start_date=days_ago(2),
     tags=['har', 'delta'],
 ) as dag:
