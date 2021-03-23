@@ -31,10 +31,9 @@ working_dir = Variable.get("ntreis_working_dir")
 server_version = Variable.get("ntreis_server_version")
 username = Variable.get("ntreis_username")
 
-activeTemplateUrl = Variable.get("ntreis_prop_delta_active_index_url")
-soldTemplateUrl = Variable.get("ntreis_prop_delta_sold_index_url")
+activeTemplateUrl = Variable.get("ntreis_prop_active_index_url")
 activePropDataSource = Variable.get("ntreis_prop_active_datasource")
-soldPropDataSource = Variable.get("ntreis_prop_sold_datasource")
+activeQuery = Variable.get("ntreis_prop_active_query")
 
 def downloadTemplate(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -42,49 +41,33 @@ def downloadTemplate(templateUrl):
 
   return response
 
-def replace(jsonContent, baseDir, dataSource, intervals):
+def replace(jsonContent, baseDir, dataSource):
   
   result = json.loads(jsonContent)
 
-  # input intervals
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
-  # base data source
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['interval'] = intervals
-  # base directory
-  result['spec']['ioConfig']['inputSource']['delegates'][1]['baseDir'] = baseDir
-  # datasource
+  result['spec']['ioConfig']['inputSource']['baseDir'] = baseDir
   result['spec']['dataSchema']['dataSource'] = dataSource
-  # granularity intervals
-  result['spec']['dataSchema']['granularitySpec']['intervals'] = intervals
 
   return result
 
-def createIndexSpec(templateContent, dataSource, intervals):
-  baseDir = '/var/shared-data/ntreis-delta'
-  template = replace(templateContent, baseDir, dataSource, intervals)
+def createIndexSpec(templateContent, dataSource):
+  baseDir = '/var/shared-data/ntreis-active'
+  template = replace(templateContent, baseDir, dataSource)
 
   return template
 
 with DAG(
-    dag_id='ntreis-property-delta',
+    dag_id='ntreis-property-active',
     default_args=default_args,
     schedule_interval="0 8 * * *",
     start_date=days_ago(2),
-    tags=['ntreis', 'delta'],
+    tags=['ntreis', 'active'],
 ) as dag:
 
-    yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
-    today = datetime.now().strftime('%Y-%m-%d')
-    # index interval in format 2020-01-01/2020-01-02
-    intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
-
-    query = 'StatusChangeTimestamp|{d}T00:00:00-{d}T23:59:59'.format(d=yesterday)
+    query = activeQuery
     # active
     activeTemplateContent = downloadTemplate(activeTemplateUrl)
-    activeIndexSpec = createIndexSpec(activeTemplateContent, activePropDataSource, intervals)
-    # sold
-    soldTemplateContent = downloadTemplate(soldTemplateUrl)
-    soldIndexSpec = createIndexSpec(soldTemplateContent, soldPropDataSource, intervals)
+    activeIndexSpec = createIndexSpec(activeTemplateContent, activePropDataSource)
 
 
     start = DummyOperator(task_id='start')
@@ -93,8 +76,8 @@ with DAG(
                     image="datagap/retsconnector:latest",
                     image_pull_policy='Always',
                     cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
-                    task_id="load-property-delta-task-" + str(yesterday),
-                    name="load-property-delta-task-" + str(yesterday),
+                    task_id="load-property-active-task",
+                    name="load-property-active-task",
                     volumes=[volume],
                     volume_mounts=[volume_mount],
                     is_delete_operator_pod=True,
@@ -106,29 +89,20 @@ with DAG(
                         'RETS_PASSWORD': password,
                         'RETS_USER_AGENT': user_agent,
                         'WORKING_DIR': working_dir,
-                        'DIR_NAME': 'ntreis-delta',
+                        'DIR_NAME': 'ntreis-active',
                         'RETS_SERVER_VERSION': server_version,
                         'RETS_USERNAME': username}
                 )
 
-    active = SimpleHttpOperator(
-                task_id='submit-property-index-' + yesterday,
+    index = SimpleHttpOperator(
+                task_id='submit-property-active-index',
                 method='POST',
                 http_conn_id='druid-cluster',
                 endpoint='druid/indexer/v1/task',
                 headers={"Content-Type": "application/json"},
                 data=json.dumps(activeIndexSpec),
                 response_check=lambda response: True if response.status_code == 200 else False)
-
-    sold = SimpleHttpOperator(
-                task_id='submit-property-index-' + yesterday,
-                method='POST',
-                http_conn_id='druid-cluster',
-                endpoint='druid/indexer/v1/task',
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(soldIndexSpec),
-                response_check=lambda response: True if response.status_code == 200 else False)
             
 
-    start >> load >> [active, sold]
+    start >> load >> index
     
