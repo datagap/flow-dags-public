@@ -33,7 +33,8 @@ username = Variable.get("ntreis_username")
 
 activeTemplateUrl = Variable.get("ntreis_prop_active_index_url")
 activePropDataSource = Variable.get("ntreis_prop_active_datasource")
-activeQuery = Variable.get("ntreis_prop_active_query")
+activeQuery1 = Variable.get("ntreis_prop_active_query_1")
+activeQuery2 = Variable.get("ntreis_prop_active_query_2")
 
 def downloadTemplate(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -64,7 +65,6 @@ with DAG(
     tags=['ntreis', 'active'],
 ) as dag:
 
-    query = activeQuery
     # active
     activeTemplateContent = downloadTemplate(activeTemplateUrl)
     activeIndexSpec = createIndexSpec(activeTemplateContent, activePropDataSource)
@@ -75,7 +75,7 @@ with DAG(
     load = KubernetesPodOperator(namespace='data',
                     image="datagap/retsconnector:latest",
                     image_pull_policy='Always',
-                    cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
+                    cmds=["sh","-c", "dotnet RetsConnector.dll '{q1}' '{q2}'".format(q1=activeQuery1, q2=activeQuery2)],
                     task_id="load-property-active-task",
                     name="load-property-active-task",
                     volumes=[volume],
