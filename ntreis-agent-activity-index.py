@@ -37,7 +37,7 @@ def createIndexSpec(jsonContent, source, target):
 with DAG(
     dag_id='ntreis-agent-activity-index',
     default_args=default_args,
-    schedule_interval="0 10 * * *",
+    schedule_interval="0 9 * * *",
     start_date=days_ago(2),
     tags=['ntreis', 'index'],
 ) as dag:

@@ -31,9 +31,7 @@ working_dir = Variable.get("ntreis_working_dir")
 server_version = Variable.get("ntreis_server_version")
 username = Variable.get("ntreis_username")
 
-activeTemplateUrl = Variable.get("ntreis_prop_delta_active_index_url")
 soldTemplateUrl = Variable.get("ntreis_prop_delta_sold_index_url")
-activePropDataSource = Variable.get("ntreis_prop_active_datasource")
 soldPropDataSource = Variable.get("ntreis_prop_sold_datasource")
 
 def downloadTemplate(templateUrl):
@@ -79,13 +77,9 @@ with DAG(
     intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
 
     query = 'StatusChangeTimestamp|{d}T00:00:00-{d}T23:59:59'.format(d=yesterday)
-    # active
-    activeTemplateContent = downloadTemplate(activeTemplateUrl)
-    activeIndexSpec = createIndexSpec(activeTemplateContent, activePropDataSource, intervals)
     # sold
     soldTemplateContent = downloadTemplate(soldTemplateUrl)
     soldIndexSpec = createIndexSpec(soldTemplateContent, soldPropDataSource, intervals)
-
 
     start = DummyOperator(task_id='start')
 
@@ -111,15 +105,6 @@ with DAG(
                         'RETS_USERNAME': username}
                 )
 
-    active = SimpleHttpOperator(
-                task_id='submit-property-index-' + yesterday,
-                method='POST',
-                http_conn_id='druid-cluster',
-                endpoint='druid/indexer/v1/task',
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(activeIndexSpec),
-                response_check=lambda response: True if response.status_code == 200 else False)
-
     sold = SimpleHttpOperator(
                 task_id='submit-property-index-' + yesterday,
                 method='POST',
@@ -129,6 +114,5 @@ with DAG(
                 data=json.dumps(soldIndexSpec),
                 response_check=lambda response: True if response.status_code == 200 else False)
             
-
-    start >> load >> [active, sold]
+    start >> load >> sold
     
