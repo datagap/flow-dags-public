@@ -39,7 +39,7 @@ def createIndexSpec(templateContent, year, harPropDataSource):
   return template
 
 with DAG(
-    dag_id='har-property-full-index',
+    dag_id='har-property-sold-index',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
