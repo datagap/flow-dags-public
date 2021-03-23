@@ -59,7 +59,7 @@ def createIndexSpec(templateContent, dataSource):
 with DAG(
     dag_id='ntreis-property-active',
     default_args=default_args,
-    schedule_interval="0 8 * * *",
+    schedule_interval="0 9 * * *",
     start_date=days_ago(2),
     tags=['ntreis', 'active'],
 ) as dag:
@@ -75,7 +75,7 @@ with DAG(
     load = KubernetesPodOperator(namespace='data',
                     image="datagap/retsconnector:latest",
                     image_pull_policy='Always',
-                    cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
+                    cmds=["sh","-c", "dotnet RetsConnector.dll {query}".format(query=query)],
                     task_id="load-property-active-task",
                     name="load-property-active-task",
                     volumes=[volume],
