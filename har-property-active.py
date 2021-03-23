@@ -22,9 +22,10 @@ volume_mount = k8s.V1VolumeMount(
     name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
 )
 
-harUrl = Variable.get("har_prop_delta_url")
-templateUrl = Variable.get("har_prop_delta_sold_index_url")
-harPropDataSource = Variable.get("har_prop_sold_datasource")
+harUrl = Variable.get("har_prop_active_url")
+
+templateUrl = Variable.get("har_prop_active_index_url")
+harPropDataSource = Variable.get("har_prop_active_datasource")
 
 def downloadTemplate(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -32,55 +33,40 @@ def downloadTemplate(templateUrl):
 
   return response
 
-def replace(jsonContent, baseDir, dataSource, intervals):
+def replace(jsonContent, baseDir, dataSource):
   
   result = json.loads(jsonContent)
 
-  # input intervals
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
-  # base data source
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['interval'] = intervals
-  # base directory
-  result['spec']['ioConfig']['inputSource']['delegates'][1]['baseDir'] = baseDir
-  # datasource
+  result['spec']['ioConfig']['inputSource']['baseDir'] = baseDir
   result['spec']['dataSchema']['dataSource'] = dataSource
-  # granularity intervals
-  result['spec']['dataSchema']['granularitySpec']['intervals'] = [intervals]
 
   return result
 
-def createIndexSpec(templateContent, dataSource, intervals):
-  baseDir = '/var/shared-data/har-delta'
-  template = replace(templateContent, baseDir, dataSource, intervals)
+def createIndexSpec(templateContent, dataSource):
+  baseDir = '/var/shared-data/har-active'
+  template = replace(templateContent, baseDir, dataSource)
 
   return template
 
 with DAG(
-    dag_id='har-property-delta',
+    dag_id='har-property-active',
     default_args=default_args,
-    schedule_interval="0 7 * * *",
+    schedule_interval="0 6 * * *",
     start_date=days_ago(2),
-    tags=['har', 'delta'],
+    tags=['har', 'active'],
 ) as dag:
 
-    yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
-    today = datetime.now().strftime('%Y-%m-%d')
-    # index interval in format 2020-01-01/2020-01-02
-    intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
-
-    url = harUrl + ' {d}'.format(d=yesterday)
-
     templateContent = downloadTemplate(templateUrl)
-    indexSpec = createIndexSpec(templateContent, harPropDataSource, intervals)
+    indexSpec = createIndexSpec(templateContent, harPropDataSource)
 
     start = DummyOperator(task_id='start')
 
     load = KubernetesPodOperator(namespace='data',
                 image="datagap/dataloader:latest",
                 image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-delta'".format(link=url)],
-                task_id="load-property-delta-task-" + str(yesterday),
-                name="load-property-delta-task-" + str(yesterday),
+                cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'har-active'".format(link=harUrl)],
+                task_id="load-property-active-task",
+                name="load-property-active-task",
                 volumes=[volume],
                 volume_mounts=[volume_mount],
                 is_delete_operator_pod=True,
@@ -88,7 +74,7 @@ with DAG(
             )
 
     index = SimpleHttpOperator(
-                task_id='submit-property-index-' + yesterday,
+                task_id='submit-property-active-index',
                 method='POST',
                 http_conn_id='druid-cluster',
                 endpoint='druid/indexer/v1/task',

@@ -17,7 +17,7 @@ default_args = {
 listUrl = Variable.get("har_agent_list_activity_index_url")
 buyerUrl = Variable.get("har_agent_buyer_activity_index_url")
 target = Variable.get("har_agent_activity_datasource")
-source = Variable.get("har_prop_datasource")
+source = Variable.get("har_prop_sold_datasource")
 
 def download(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -37,7 +37,7 @@ def createIndexSpec(jsonContent, source, target):
 with DAG(
     dag_id='har-agent-activity-index',
     default_args=default_args,
-    schedule_interval="0 9 * * *",
+    schedule_interval="0 7 * * *",
     start_date=days_ago(2),
     tags=['har', 'index'],
 ) as dag:
