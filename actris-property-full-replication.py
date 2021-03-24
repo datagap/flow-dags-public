@@ -5,6 +5,8 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.operators.subdag import SubDagOperator
 
 default_args = {
     'owner': 'datagap'
@@ -22,7 +24,7 @@ volume_mount = k8s.V1VolumeMount(
 actrisUrl = Variable.get("actris_prop_url")
 
 with DAG(
-    dag_id='actris-properties-full-replication',
+    dag_id='actris-property-full-replication',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
@@ -40,8 +42,8 @@ with DAG(
                     image="datagap/dataloader:latest",
                     image_pull_policy='Always',
                     cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'actris-{year}'".format(link=url,year=year)],
-                    task_id="deploy-data-loader-pod-task-" + str(year),
-                    name="actris-properties-loader-pod-" + str(year),
+                    task_id="load-property-full-task-" + str(year),
+                    name="load-property-full-task-" + str(year),
                     volumes=[volume],
                     volume_mounts=[volume_mount],
                     is_delete_operator_pod=True,

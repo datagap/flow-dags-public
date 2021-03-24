@@ -14,8 +14,8 @@ default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("actris_prop_file_index_url")
-actrisPropDataSource = Variable.get("actris_prop_datasource")
+templateUrl = Variable.get("actris_prop_sold_index_url")
+actrisPropDataSource = Variable.get("actris_prop_sold_datasource")
 
 def download(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -32,14 +32,14 @@ def replace(jsonContent, baseDir, dataSource):
 
   return result
 
-def work(templateContent, year, harPropDataSource):
+def createIndexSpec(templateContent, year, actrisPropDataSource):
   baseDir = '/var/shared-data/actris-{year}'.format(year=year)
   template = replace(templateContent, baseDir, actrisPropDataSource)
 
   return template
 
 with DAG(
-    dag_id='actris-property-full-index',
+    dag_id='actris-property-sold-index',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
@@ -55,11 +55,11 @@ with DAG(
     index = 0
 
     for year in years:
-        indexSpec = work(templateContent, year, actrisPropDataSource)
+        indexSpec = createIndexSpec(templateContent, year, actrisPropDataSource)
 
         wait = BashOperator(
-                task_id='wait-for-15m-' + year,
-                bash_command="sleep 15m")
+                task_id='wait-for-10m-' + year,
+                bash_command="sleep 10m")
 
         tasks.append(
             SimpleHttpOperator(
