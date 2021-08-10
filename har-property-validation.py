@@ -72,10 +72,10 @@ with DAG(
     # index interval in format 2020-01-01/2020-01-02
     intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
 
-    json = {
+    druidJson = {
       "query":"SELECT ListingId, __time, ListOfficeName FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}'".format(datasource=harPropDatasource, yesterday=yesterday, today=today)
     }
-    druidQuery = json.dumps(json)
+    druidQuery = json.dumps(druidJson)
 
     mlsUrl = harUrl + ' {d}'.format(d=yesterday)
 
