@@ -75,7 +75,7 @@ with DAG(
     json = {
       "query":"SELECT ListingId, __time, ListOfficeName FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}'".format(datasource=harPropDatasource, yesterday=yesterday, today=today)
     }
-    druidQuery = json.loads(json)
+    druidQuery = json.dumps(json)
 
     mlsUrl = harUrl + ' {d}'.format(d=yesterday)
 
