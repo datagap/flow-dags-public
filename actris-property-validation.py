@@ -89,7 +89,7 @@ with DAG(
     loadDruid = KubernetesPodOperator(namespace='data',
                 image="truongretell/druiddataloader:latest",
                 image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet DataValidation.dll '{link}' '/shared-data' 'actris-validation' '{yesterday}' '{query}'".format(link=druidUrl, yesterday=yesterday, query=druidQuery)],
+                cmds=["sh","-c", "dotnet DruidDataLoader.dll '{link}' '/shared-data' 'actris-validation' '{yesterday}' '{query}'".format(link=druidUrl, yesterday=yesterday, query=druidQuery)],
                 task_id="load-property-sold-validation-task-" + str(yesterday),
                 name="load-property-sold-validation-task-" + str(yesterday),
                 volumes=[volume],
