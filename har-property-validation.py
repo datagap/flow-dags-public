@@ -87,7 +87,7 @@ with DAG(
     start = DummyOperator(task_id='start')
 
     loadDruid = KubernetesPodOperator(namespace='data',
-                image="truongretell/druiddataloaderlatest",
+                image="truongretell/druiddataloader:latest",
                 image_pull_policy='Always',
                 cmds=["sh","-c", "dotnet DataValidation.dll '{link}' '/shared-data' 'har-validation' '{yesterday}' '{query}'".format(link=druidUrl, yesterday=yesterday, query=druidQuery)],
                 task_id="load-property-sold-validation-task-" + str(yesterday),
