@@ -73,7 +73,7 @@ with DAG(
     intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
 
     json = {
-      "query":"SELECT ListingId, __time, ListOfficeName FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}}'".format(datasource=harPropDatasource, yesterday=yesterday, today=today)
+      "query":"SELECT ListingId, __time, ListOfficeName FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}}'".format(datasource=actrisPropDatasource, yesterday=yesterday, today=today)
     }
     druidQuery = json.loads(json)
 
