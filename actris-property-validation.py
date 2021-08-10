@@ -53,9 +53,9 @@ def replace(jsonContent, baseDir, dataSource, intervals, systemSource):
 
   return result
 
-def createIndexSpec(templateContent, dataSource, intervals):
+def createIndexSpec(templateContent, dataSource, intervals, systemSource):
   baseDir = '/var/shared-data/actris-validation'
-  template = replace(templateContent, baseDir, dataSource, intervals)
+  template = replace(templateContent, baseDir, dataSource, intervals, systemSource)
 
   return template
 
