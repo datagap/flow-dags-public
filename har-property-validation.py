@@ -49,7 +49,7 @@ def replace(jsonContent, baseDir, dataSource, intervals, systemSource):
   # granularity intervals
   result['spec']['dataSchema']['granularitySpec']['intervals'] = [intervals]
   # system source
-  result['spec']['dataSchema']['transformSpec']['transforms']['expression'] = [systemSource]
+  result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = [systemSource]
 
   return result
 
