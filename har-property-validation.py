@@ -80,7 +80,7 @@ with DAG(
     mlsUrl = harUrl + ' {d}'.format(d=yesterday)
 
     indexTemplate = downloadTemplate(templateUrl)
-    
+
     druidIndexSpec = createIndexSpec(indexTemplate, validationDatasource, intervals, 'nvl("dummyCol1", \'Druid\')')
     mlsIndexSpec = createIndexSpec(indexTemplate, validationDatasource, intervals, 'nvl("dummyCol1", \'MLS\')')
 
@@ -129,5 +129,5 @@ with DAG(
                 response_check=lambda response: True if response.status_code == 200 else False)
             
 
-    start >> loadDruid >> indexDruid >> loadMls >> indexMls
+    start >> loadMls >> indexMls >> loadDruid >> indexDruid 
     
