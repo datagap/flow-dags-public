@@ -5,6 +5,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
+from airflow.operators.bash import BashOperator
 from airflow.operators.http_operator import SimpleHttpOperator
 import urllib.request
 import json
@@ -86,6 +87,10 @@ with DAG(
 
     start = DummyOperator(task_id='start')
 
+    wait = BashOperator(
+                task_id='wait-for-15m',
+                bash_command="sleep 15m")
+
     loadDruid = KubernetesPodOperator(namespace='data',
                 image="truongretell/druiddataloader:latest",
                 image_pull_policy='Always',
@@ -129,5 +134,5 @@ with DAG(
                 response_check=lambda response: True if response.status_code == 200 else False)
             
 
-    start >> loadDruid >> indexDruid >> loadMls >> indexMls
+    start >> loadDruid >> indexDruid >> wait >> loadMls >> indexMls
     
