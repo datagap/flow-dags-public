@@ -24,10 +24,18 @@ volume_mount = k8s.V1VolumeMount(
 )
 
 druidUrl = Variable.get("druid_broker_url")
-ntreisUrl = Variable.get("ntreis_prop_delta_url")
 templateUrl = Variable.get("ntreis_druid_validation_index_url")
 ntreisPropDatasource = Variable.get("ntreis_prop_sold_datasource")
 validationDatasource = Variable.get("validation_datasource")
+
+login_url = Variable.get("ntreis_login_url")
+rets_type = Variable.get("ntreis_rets_type")
+search_limit = Variable.get("ntreis_search_limit")
+password = Variable.get("ntreis_password")
+user_agent = Variable.get("ntreis_user_agent")
+working_dir = Variable.get("ntreis_working_dir")
+server_version = Variable.get("ntreis_server_version")
+username = Variable.get("ntreis_username")
 
 def downloadTemplate(templateUrl):
   request = urllib.request.urlopen(templateUrl)
@@ -73,12 +81,12 @@ with DAG(
     # index interval in format 2020-01-01/2020-01-02
     intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
 
+    query = 'StatusChangeTimestamp={d}T00:00:00-{d}T23:59:59'.format(d=yesterday)
+
     druidJson = {
       "query":"SELECT ListingId, __time, ListOfficeName FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}'".format(datasource=ntreisPropDatasource, yesterday=yesterday, today=today)
     }
     druidQuery = json.dumps(druidJson)
-
-    mlsUrl = ntreisUrl + ' {d}'.format(d=yesterday)
 
     indexTemplate = downloadTemplate(templateUrl)
 
@@ -113,16 +121,26 @@ with DAG(
                 response_check=lambda response: True if response.status_code == 200 else False)
 
     loadMls = KubernetesPodOperator(namespace='data',
-                image="datagap/dataloader:latest",
-                image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet DataLoader.dll '{link}' '/shared-data' 'ntreis-validation'".format(link=mlsUrl)],
-                task_id="load-mls-property-validation-task-" + str(yesterday),
-                name="load-mls-property-validation-task-" + str(yesterday),
-                volumes=[volume],
-                volume_mounts=[volume_mount],
-                is_delete_operator_pod=True,
-                get_logs=True
-            )
+                    image="datagap/retsconnector:latest",
+                    image_pull_policy='Always',
+                    cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
+                    task_id="load-property-delta-task-" + str(yesterday),
+                    name="load-property-delta-task-" + str(yesterday),
+                    volumes=[volume],
+                    volume_mounts=[volume_mount],
+                    is_delete_operator_pod=True,
+                    get_logs=True,
+                    env_vars={
+                        'RETS_LOGIN_URL': login_url,
+                        'RETS_TYPE': rets_type,
+                        'RETS_SEARCH_LIMIT': search_limit,
+                        'RETS_PASSWORD': password,
+                        'RETS_USER_AGENT': user_agent,
+                        'WORKING_DIR': working_dir,
+                        'DIR_NAME': 'ntreis-delta',
+                        'RETS_SERVER_VERSION': server_version,
+                        'RETS_USERNAME': username}
+                )  
 
     indexMls = SimpleHttpOperator(
                 task_id='submit-mls-validation-index-' + yesterday,
