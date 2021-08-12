@@ -63,7 +63,7 @@ def createIndexSpec(templateContent, dataSource, intervals, systemSource):
 with DAG(
     dag_id='har-property-validation',
     default_args=default_args,
-    schedule_interval="0 8 * * *",
+    schedule_interval="0 9 * * *",
     start_date=days_ago(2),
     tags=['har', 'validation'],
 ) as dag:
@@ -134,5 +134,5 @@ with DAG(
                 response_check=lambda response: True if response.status_code == 200 else False)
             
 
-    start >> loadDruid >> indexDruid >> wait >> loadMls >> indexMls
+    start >> loadMls >> indexMls >> loadDruid >> indexDruid >> wait
     

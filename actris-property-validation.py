@@ -134,5 +134,5 @@ with DAG(
                 response_check=lambda response: True if response.status_code == 200 else False)
             
 
-    start >> loadDruid >> indexDruid >> wait >> loadMls >> indexMls
+    start >> loadMls >> indexMls >> loadDruid >> indexDruid >> wait 
     
