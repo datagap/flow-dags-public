@@ -84,7 +84,7 @@ with DAG(
     query = 'StatusChangeTimestamp={d}T00:00:00-{d}T23:59:59'.format(d=yesterday)
 
     druidJson = {
-      "query":"SELECT ListingId, __time, ListOfficeName FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}'".format(datasource=ntreisPropDatasource, yesterday=yesterday, today=today)
+      "query":"SELECT __time, ListOfficeName, MLS FROM \"{datasource}\" WHERE \"__time\" BETWEEN TIMESTAMP '{yesterday}' AND TIMESTAMP '{today}'".format(datasource=ntreisPropDatasource, yesterday=yesterday, today=today)
     }
     druidQuery = json.dumps(druidJson)
 
