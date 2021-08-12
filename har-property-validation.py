@@ -82,8 +82,8 @@ with DAG(
 
     indexTemplate = downloadTemplate(templateUrl)
 
-    druidIndexSpec = createIndexSpec(indexTemplate, validationDatasource, intervals, 'druid')
-    mlsIndexSpec = createIndexSpec(indexTemplate, validationDatasource, intervals, 'mls')
+    druidIndexSpec = createIndexSpec(indexTemplate, validationDatasource, intervals, 'nvl("dummyCol1", \'Druid\')')
+    mlsIndexSpec = createIndexSpec(indexTemplate, validationDatasource, intervals, 'nvl("dummyCol1", \'MLS\')')
 
     start = DummyOperator(task_id='start')
 
