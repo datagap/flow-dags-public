@@ -41,7 +41,7 @@ def createIndexSpec(templateContent, dataSource, basePath, date):
   return template
 
 with DAG(
-    dag_id='permit-data-weekly',
+    dag_id='permit-data-batch',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
