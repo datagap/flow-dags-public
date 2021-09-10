@@ -26,9 +26,9 @@ def replace(jsonContent, dataSource, basePath, date):
   
   result = json.loads(jsonContent)
   result['spec']['ioConfig']['inputSource']['uris'] = [
-    '/"' + basePath + 'Austin/' + date + '_Austin.csv' + '/"',
-    '/"' + basePath + 'Dallas/' + date + '_Dallas Fort Worth.csv' + '/"',
-    '/"' + basePath + 'Houston/' + date + '_Houston.csv' + '/"',
+    '\"' + basePath + 'Austin/' + date + '_Austin.csv' + '\"',
+    '\"' + basePath + 'Dallas/' + date + '_Dallas Fort Worth.csv' + '\"',
+    '\"' + basePath + 'Houston/' + date + '_Houston.csv' + '\"',
   ]
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
