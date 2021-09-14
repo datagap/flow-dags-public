@@ -13,7 +13,7 @@ default_args = {
     'owner': 'datagap'
 }
 
-templateUrl = Variable.get("permit_data_weekly_index_url")
+templateUrl = Variable.get("permit_data_houston_batch_index_url")
 permitDataSource = Variable.get("permit_datasource")
 
 def downloadTemplate(templateUrl):
@@ -22,21 +22,18 @@ def downloadTemplate(templateUrl):
 
   return response
 
-def replace(jsonContent, dataSource, basePath, date):
+def replace(jsonContent, dataSource, market):
   
   result = json.loads(jsonContent)
-  result['spec']['ioConfig']['inputSource']['uris'] = [
-    "https://raw.githubusercontent.com/PaulQPham/test-permit-data/main/Austin_Combined.csv",
-    "https://raw.githubusercontent.com/PaulQPham/test-permit-data/main/Dallas_Combined.csv",
-    "https://raw.githubusercontent.com/PaulQPham/test-permit-data/main/Houston_Combined.csv",
-  ]
+
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
+  result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = market
 
   return result
 
-def createIndexSpec(templateContent, dataSource, basePath, date):
-  template = replace(templateContent, dataSource, basePath, date)
+def createIndexSpec(templateContent, dataSource, market):
+  template = replace(templateContent, dataSource, market)
 
   return template
 
@@ -48,11 +45,10 @@ with DAG(
     tags=['permit'],
 ) as dag:
 
-    basePath = "https://raw.githubusercontent.com/PaulQPham/test-permit-data/main/"
     yesterday = (datetime.now() - timedelta(1)).strftime('%Y%m%d')
 
     templateContent = downloadTemplate(templateUrl)
-    indexSpec = createIndexSpec(templateContent, permitDataSource, basePath, yesterday)
+    indexSpec = createIndexSpec(templateContent, permitDataSource, 'nvl("dummyCol1", \'Houston\')')
 
     start = DummyOperator(task_id='start')
     index = SimpleHttpOperator(
