@@ -38,7 +38,7 @@ def createIndexSpec(templateContent, dataSource, market):
   return template
 
 with DAG(
-    dag_id='permit-data-batch',
+    dag_id='permit-data-dallas-batch',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),

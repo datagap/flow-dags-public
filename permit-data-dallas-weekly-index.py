@@ -41,7 +41,7 @@ def createIndexSpec(templateContent, dataSource, basePath, date, market):
   return template
 
 with DAG(
-    dag_id='permit-data-weekly',
+    dag_id='permit-data-dallas-weekly',
     default_args=default_args,
     schedule_interval="0 0 * * 5", # Weekly at midnight on Friday
     start_date=days_ago(2),
