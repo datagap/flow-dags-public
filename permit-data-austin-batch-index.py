@@ -33,6 +33,8 @@ def replace(jsonContent, dataSource, interval, market):
   result['spec']['dataSchema']['dataSource'] = dataSource
   # added Market column
   result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = market
+  # granularity intervals
+  result['spec']['dataSchema']['granularitySpec']['intervals'] = [interval]
 
   return result
 
@@ -53,7 +55,7 @@ with DAG(
 
     templateContent = downloadTemplate(templateUrl)
     interval = '2020-01-01/{yesterday}'.format(yesterday=yesterday)
-    
+
     indexSpec = createIndexSpec(templateContent, permitDataSource, interval, 'nvl("dummyCol1", \'Austin\')')
 
     start = DummyOperator(task_id='start')

@@ -38,6 +38,8 @@ def replace(jsonContent, dataSource, interval, basePath, date, market):
   result['spec']['dataSchema']['dataSource'] = dataSource
   # added Market column
   result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = market
+  # granularity intervals
+  result['spec']['dataSchema']['granularitySpec']['intervals'] = [interval]
 
   return result
 
