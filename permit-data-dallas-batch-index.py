@@ -36,8 +36,8 @@ def replace(jsonContent, dataSource, interval, market):
 
   return result
 
-def createIndexSpec(templateContent, dataSource, market):
-  template = replace(templateContent, dataSource, market)
+def createIndexSpec(templateContent, interval, dataSource, market):
+  template = replace(templateContent, interval, dataSource, market)
 
   return template
 
