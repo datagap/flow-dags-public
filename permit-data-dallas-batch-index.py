@@ -52,7 +52,8 @@ with DAG(
     yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
 
     templateContent = downloadTemplate(templateUrl)
-    interval = '2020-01-01/' + yesterday
+    interval = '2020-01-01/{yesterday}'.format(yesterday=yesterday)
+    
     indexSpec = createIndexSpec(templateContent, permitDataSource, interval, 'nvl("dummyCol1", \'Dallas\')')
 
     start = DummyOperator(task_id='start')
