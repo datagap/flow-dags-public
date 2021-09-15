@@ -22,11 +22,13 @@ def downloadTemplate(templateUrl):
 
   return response
 
-def replace(jsonContent, dataSource, market):
+def replace(jsonContent, dataSource, interval, market):
   
   result = json.loads(jsonContent)
   # base data source
   result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
+  # interval
+  result['spec']['ioConfig']['inputSource']['delegates'][0]['interval'] = interval
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
   # added Market column
@@ -47,10 +49,11 @@ with DAG(
     tags=['permit'],
 ) as dag:
 
-    yesterday = (datetime.now() - timedelta(1)).strftime('%Y%m%d')
+    yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
 
     templateContent = downloadTemplate(templateUrl)
-    indexSpec = createIndexSpec(templateContent, permitDataSource, 'nvl("dummyCol1", \'Dallas\')')
+    interval = '2020-01-01/' + yesterday
+    indexSpec = createIndexSpec(templateContent, permitDataSource, interval, 'nvl("dummyCol1", \'Dallas\')')
 
     start = DummyOperator(task_id='start')
     index = SimpleHttpOperator(

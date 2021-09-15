@@ -23,11 +23,13 @@ def downloadTemplate(templateUrl):
 
   return response
 
-def replace(jsonContent, dataSource, basePath, date, market):
+def replace(jsonContent, dataSource, interval, basePath, date, market):
   
   result = json.loads(jsonContent)
   # base data source
   result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
+  # interval
+  result['spec']['ioConfig']['inputSource']['delegates'][0]['interval'] = interval
   # ingest data url  
   result['spec']['ioConfig']['inputSource']['delegates'][1]['uris'] = [
     basePath + 'Austin/' + date + '_Austin.csv'
@@ -39,8 +41,8 @@ def replace(jsonContent, dataSource, basePath, date, market):
 
   return result
 
-def createIndexSpec(templateContent, dataSource, basePath, date, market):
-  template = replace(templateContent, dataSource, basePath, date, market)
+def createIndexSpec(templateContent, dataSource, interval, basePath, date, market):
+  template = replace(templateContent, dataSource, interval, basePath, date, market)
 
   return template
 
@@ -52,10 +54,15 @@ with DAG(
     tags=['permit'],
 ) as dag:
 
-    yesterday = (datetime.now() - timedelta(1)).strftime('%Y%m%d')
+    yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
+    lastWeek = (datetime.now() - timedelta(8)).strftime('%Y-%m-%d')
+
+    interval = '{lastWeek}/{yesterday}'.format(lastWeek=lastWeek, yesterday=yesterday)
+
+    formattedDate = (datetime.now() - timedelta(1)).strftime('%Y%m%d')
 
     templateContent = downloadTemplate(templateUrl)
-    indexSpec = createIndexSpec(templateContent, permitDataSource, basePath, yesterday, 'nvl("dummyCol1", \'Austin\')')
+    indexSpec = createIndexSpec(templateContent, permitDataSource, interval, basePath, formattedDate, 'nvl("dummyCol1", \'Austin\')')
 
     start = DummyOperator(task_id='start')
     index = SimpleHttpOperator(
