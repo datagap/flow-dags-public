@@ -30,8 +30,8 @@ def replace(jsonContent, dataSource):
 
     return result
 
-def createIndexSpec(templateContent, dataSource, market):
-    template = replace(templateContent, dataSource, market),
+def createIndexSpec(templateContent, dataSource):
+    template = replace(templateContent, dataSource),
 
     return template
 
