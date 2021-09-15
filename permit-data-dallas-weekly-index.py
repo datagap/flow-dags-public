@@ -64,7 +64,7 @@ with DAG(
     formattedDate = (datetime.now() - timedelta(1)).strftime('%Y%m%d')
 
     templateContent = downloadTemplate(templateUrl)
-    indexSpec = createIndexSpec(templateContent, permitDataSource, basePath, interval, formattedDate, 'nvl("dummyCol1", \'Dallas\')')
+    indexSpec = createIndexSpec(templateContent, permitDataSource, interval, basePath, formattedDate, 'nvl("dummyCol1", \'Dallas\')')
 
     start = DummyOperator(task_id='start')
     index = SimpleHttpOperator(
