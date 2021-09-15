@@ -26,11 +26,15 @@ def downloadTemplate(templateUrl):
 def replace(jsonContent, dataSource, basePath, date, market):
   
   result = json.loads(jsonContent)
-  result['spec']['ioConfig']['inputSource']['uris'] = [
+  # base data source
+  result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
+  # ingest data url  
+  result['spec']['ioConfig']['inputSource']['delegates'][1]['uris'] = [
     basePath + 'Austin/' + date + '_Austin.csv'
   ]
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
+  # added Market column
   result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = market
 
   return result

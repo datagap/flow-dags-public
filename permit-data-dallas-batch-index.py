@@ -25,9 +25,11 @@ def downloadTemplate(templateUrl):
 def replace(jsonContent, dataSource, market):
   
   result = json.loads(jsonContent)
-
+  # base data source
+  result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
+  # added Market column
   result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = market
 
   return result
