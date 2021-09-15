@@ -13,7 +13,6 @@ default_args = {
     'owner': 'datagap'
 }
 
-schemaPath = Variable.get("permit_data_schema_url")
 templateUrl = Variable.get("permit_data_schema_index_url")
 permitDataSource = Variable.get("permit_datasource")
 
@@ -23,14 +22,11 @@ def downloadTemplate(templateUrl):
 
     return response
 
-def replace(jsonContent, dataSource, market):
+def replace(jsonContent, dataSource):
 
     result = json.loads(jsonContent)
-    result['spec']['ioConfig']['inputSource']['uris'] = [schemaPath]
     # datasource
     result['spec']['dataSchema']['dataSource'] = dataSource
-      # added Market column
-    result['spec']['dataSchema']['transformSpec']['transforms'][0]['expression'] = market
 
     return result
 
@@ -50,7 +46,7 @@ with DAG(
     yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
 
     templateContent = downloadTemplate(templateUrl)
-    indexSpec = createIndexSpec(templateContent, permitDataSource, 'nvl("dummyCol1", \'SchemaImport\')')
+    indexSpec = createIndexSpec(templateContent, permitDataSource)
 
     start = DummyOperator(task_id='start')
     index = SimpleHttpOperator(
