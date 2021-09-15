@@ -26,9 +26,7 @@ def replace(jsonContent, dataSource, interval, market):
   
   result = json.loads(jsonContent)
   # base data source
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
-  # interval
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['interval'] = interval
+  result['spec']['ioConfig']['inputSource']['dataSource'] = dataSource
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
   # added Market column

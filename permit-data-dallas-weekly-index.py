@@ -27,11 +27,9 @@ def replace(jsonContent, dataSource, interval, basePath, date, market):
   
   result = json.loads(jsonContent)
   # base data source
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['dataSource'] = dataSource
-  # interval
-  result['spec']['ioConfig']['inputSource']['delegates'][0]['interval'] = interval
+  result['spec']['ioConfig']['inputSource']['dataSource'] = dataSource
   # ingest data url
-  result['spec']['ioConfig']['inputSource']['delegates'][1]['uris'] = [
+  result['spec']['ioConfig']['inputSource']['uris'] = [
     basePath + 'Dallas/' + date + '_Dallas%20Fort%20Worth.csv'
   ]
   # datasource
