@@ -49,7 +49,7 @@ def createIndexSpec(templateContent, dataSource, interval, basePath, date, marke
 with DAG(
     dag_id='permit-data-austin-weekly',
     default_args=default_args,
-    schedule_interval="0 0 * * 5", # Weekly at midnight on Friday
+    schedule_interval="0 0 * * 2", # Weekly at midnight on Tuesday
     start_date=days_ago(2),
     tags=['permit'],
 ) as dag:
