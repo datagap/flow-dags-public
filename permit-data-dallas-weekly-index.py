@@ -30,7 +30,7 @@ def replace(jsonContent, dataSource, interval, basePath, date, market):
   result['spec']['ioConfig']['inputSource']['dataSource'] = dataSource
   # ingest data url
   result['spec']['ioConfig']['inputSource']['uris'] = [
-    basePath + date + '_Dallas%20Fort%20Worth.csv'
+    basePath + "dallas/" + date + '_Dallas%20Fort%20Worth.csv'
   ]
   # datasource
   result['spec']['dataSchema']['dataSource'] = dataSource
