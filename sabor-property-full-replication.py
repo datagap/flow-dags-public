@@ -72,7 +72,7 @@ with DAG(
     task = KubernetesPodOperator(namespace='data',
                 image="truongretell/saboringestion:latest",
                 image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet saboringestion.dll '{tokenUrl}' '{dataUrl}' '{clientId}' '{clientSecret}' '{scope}' '/shared-data' 'sabor-replication'".format(tokenUrl=saborTokenUrl,dataUrl=saborDataUrl,clientId=saborClientId,clientSecret=saborClientSecret,scope=saborScope)],
+                cmds=["sh","-c", "dotnet SaborIngestion.dll '{tokenUrl}' '{dataUrl}' '{clientId}' '{clientSecret}' '{scope}' '/shared-data' 'sabor-replication'".format(tokenUrl=saborTokenUrl,dataUrl=saborDataUrl,clientId=saborClientId,clientSecret=saborClientSecret,scope=saborScope)],
                 task_id="load-property-full-task-sabor",
                 name="load-property-full-task-sabor",
                 volumes=[volume],
