@@ -59,11 +59,11 @@ def createIndexSpec(templateContent, saborPropDataSource, interval):
 
 
 with DAG(
-    dag_id='sabor-property-full-replication',
+    dag_id='sabor-property-active-delta',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['sabor', 'replication'],
+    tags=['sabor', 'delta'],
 ) as dag:
 
     yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
