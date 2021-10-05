@@ -31,7 +31,7 @@ saborClientId = Variable.get("sabor_client_id")
 saborClientSecret = Variable.get("sabor_client_secret")
 saborScope= Variable.get("sabor_scope")
 
-templateUrl = Variable.get("sabor_prop_active_replication_index_url")
+templateUrl = Variable.get("sabor_prop_active_index_url")
 saborPropDataSource = Variable.get("sabor_prop_active_datasource")
 
 def download(templateUrl):
@@ -40,18 +40,20 @@ def download(templateUrl):
 
   return response
 
-def replace(jsonContent, baseDir, dataSource):
+def replace(jsonContent, baseDir, dataSource, interval):
   
   result = json.loads(jsonContent)
 
   result['spec']['ioConfig']['inputSource']['baseDir'] = baseDir
   result['spec']['dataSchema']['dataSource'] = dataSource
+  # granularity intervals
+  result['spec']['dataSchema']['granularitySpec']['intervals'] = [interval]
 
   return result
 
-def createIndexSpec(templateContent, saborPropDataSource):
+def createIndexSpec(templateContent, saborPropDataSource, interval):
   baseDir = '/var/shared-data/sabor-replication'
-  template = replace(templateContent, baseDir, saborPropDataSource)
+  template = replace(templateContent, baseDir, saborPropDataSource, interval)
 
   return template
 
@@ -64,15 +66,22 @@ with DAG(
     tags=['sabor', 'replication'],
 ) as dag:
 
+    yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
+    today = datetime.now().strftime('%Y-%m-%d')
+    # index interval in format 2020-01-01/2020-01-02
+    intervals = '{yesterday}/{today}'.format(yesterday=yesterday, today=today)
+
+    url = saborDataUrl + 'StatusChangeTimestamp ge {y}T00:00:00Z and StatusChangeTimestamp lt {t}T00:00:00Z'.format(y=yesterday, t=today)
+
     start = DummyOperator(task_id='start')
 
     templateContent = download(templateUrl)
-    indexSpec = createIndexSpec(templateContent, saborPropDataSource)
+    indexSpec = createIndexSpec(templateContent, saborPropDataSource, intervals)
         
     task = KubernetesPodOperator(namespace='data',
                 image="truongretell/saboringestion:latest",
                 image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet SaborIngestion.dll '{tokenUrl}' '{dataUrl}' '{clientId}' '{clientSecret}' '{scope}' '/shared-data' 'sabor-replication'".format(tokenUrl=saborTokenUrl,dataUrl=saborDataUrl,clientId=saborClientId,clientSecret=saborClientSecret,scope=saborScope)],
+                cmds=["sh","-c", "dotnet SaborIngestion.dll '{tokenUrl}' '{dataUrl}' '{clientId}' '{clientSecret}' '{scope}' '/shared-data' 'sabor-replication'".format(tokenUrl=saborTokenUrl,dataUrl=url,clientId=saborClientId,clientSecret=saborClientSecret,scope=saborScope)],
                 task_id="load-property-full-task-sabor",
                 name="load-property-full-task-sabor",
                 volumes=[volume],
