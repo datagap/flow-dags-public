@@ -50,7 +50,7 @@ def replace(jsonContent, baseDir, dataSource):
   return result
 
 def createIndexSpec(templateContent, saborPropDataSource):
-  baseDir = '/var/shared-data/sabor-'
+  baseDir = '/var/shared-data/sabor-replication'
   template = replace(templateContent, baseDir, saborPropDataSource)
 
   return template
