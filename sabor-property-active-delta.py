@@ -61,7 +61,7 @@ def createIndexSpec(templateContent, saborPropDataSource, interval):
 with DAG(
     dag_id='sabor-property-active-delta',
     default_args=default_args,
-    schedule_interval=None,
+    schedule_interval="0 5 * * *",
     start_date=days_ago(2),
     tags=['sabor', 'delta'],
 ) as dag:
