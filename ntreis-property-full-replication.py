@@ -51,7 +51,7 @@ with DAG(
         
         tasks.append(
             KubernetesPodOperator(namespace='data',
-                image="datagap/retsconnector:latest",
+                image="truongretell/retsconnector:latest",
                 image_pull_policy='Always',
                 cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
                 task_id="load-property-full-task-" + str(year),
