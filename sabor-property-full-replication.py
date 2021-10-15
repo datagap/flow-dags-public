@@ -47,7 +47,7 @@ with DAG(
 
     for year in years:
         # StatusChangeTimestamp|2020-01-01T00:00:00-2020-12-31T23:59:59
-        query = 'StatusChangeTimestamp={y}-01-01T00:00:00-{y}-12-31T23:59:59'.format(y=year)
+        query = 'ModificationTimestamp={y}-01-01T00:00:00-{y}-12-31T23:59:59'.format(y=year)
         
         tasks.append(
             KubernetesPodOperator(namespace='data',
