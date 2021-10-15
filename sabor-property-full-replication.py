@@ -1,3 +1,4 @@
+
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
@@ -5,11 +6,8 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
-from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.operators.subdag import SubDagOperator
-import urllib.request
-import json
 
 default_args = {
     'owner': 'datagap'
@@ -24,37 +22,14 @@ volume_mount = k8s.V1VolumeMount(
     name='data-volume', mount_path='/shared-data', sub_path=None, read_only=False
 )
 
-saborTokenUrl = Variable.get("sabor_token_url")
-saborDataUrl = Variable.get("sabor_prop_url")
-
-saborClientId = Variable.get("sabor_client_id")
-saborClientSecret = Variable.get("sabor_client_secret")
-saborScope= Variable.get("sabor_scope")
-
-templateUrl = Variable.get("sabor_prop_active_replication_index_url")
-saborPropDataSource = Variable.get("sabor_prop_active_datasource")
-
-def download(templateUrl):
-  request = urllib.request.urlopen(templateUrl)
-  response = request.read().decode('utf-8')
-
-  return response
-
-def replace(jsonContent, baseDir, dataSource):
-  
-  result = json.loads(jsonContent)
-
-  result['spec']['ioConfig']['inputSource']['baseDir'] = baseDir
-  result['spec']['dataSchema']['dataSource'] = dataSource
-
-  return result
-
-def createIndexSpec(templateContent, saborPropDataSource):
-  baseDir = '/var/shared-data/sabor-replication'
-  template = replace(templateContent, baseDir, saborPropDataSource)
-
-  return template
-
+login_url = Variable.get("sabor_login_url")
+rets_type = Variable.get("sabor_rets_type")
+search_limit = Variable.get("sabor_search_limit")
+password = Variable.get("sabor_password")
+user_agent = Variable.get("sabor_user_agent")
+working_dir = Variable.get("sabor_working_dir")
+server_version = Variable.get("sabor_server_version")
+username = Variable.get("sabor_username")
 
 with DAG(
     dag_id='sabor-property-full-replication',
@@ -66,29 +41,43 @@ with DAG(
 
     start = DummyOperator(task_id='start')
 
-    templateContent = download(templateUrl)
-    indexSpec = createIndexSpec(templateContent, saborPropDataSource)
+    years = ["2014", "2015", "2016", "2017", "2018","2019", "2020", "2021"]
+    tasks = []
+    index = 0
+
+    for year in years:
+        # StatusChangeTimestamp|2020-01-01T00:00:00-2020-12-31T23:59:59
+        query = 'StatusChangeTimestamp={y}-01-01T00:00:00-{y}-12-31T23:59:59'.format(y=year)
         
-    task = KubernetesPodOperator(namespace='data',
-                image="truongretell/saboringestion:latest",
+        tasks.append(
+            KubernetesPodOperator(namespace='data',
+                image="datagap/retsconnector:latest",
                 image_pull_policy='Always',
-                cmds=["sh","-c", "dotnet SaborIngestion.dll '{tokenUrl}' '{dataUrl}' '{clientId}' '{clientSecret}' '{scope}' '/shared-data' 'sabor-replication'".format(tokenUrl=saborTokenUrl,dataUrl=saborDataUrl,clientId=saborClientId,clientSecret=saborClientSecret,scope=saborScope)],
-                task_id="load-property-full-task-sabor",
-                name="load-property-full-task-sabor",
+                cmds=["sh","-c", "dotnet RetsConnector.dll '{query}'".format(query=query)],
+                task_id="load-property-full-task-" + str(year),
+                name="load-property-full-task-" + str(year),
                 volumes=[volume],
                 volume_mounts=[volume_mount],
                 is_delete_operator_pod=True,
-                get_logs=True
-            )
+                get_logs=True,
+                env_vars={
+                    'RETS_LOGIN_URL': login_url,
+                    'RETS_TYPE': rets_type,
+                    'RETS_SEARCH_LIMIT': search_limit,
+                    'RETS_PASSWORD': password,
+                    'RETS_USER_AGENT': user_agent,
+                    'WORKING_DIR': working_dir,
+                    'DIR_NAME': 'sabor-' + year,
+                    'RETS_SERVER_VERSION': server_version,
+                    'RETS_USERNAME': username})
+        )
+        
+        if index > 0:
+            tasks[index-1] >> tasks[index]
 
-    index = SimpleHttpOperator(
-                task_id='submit-property-index',
-                method='POST',
-                http_conn_id='druid-cluster',
-                endpoint='druid/indexer/v1/task',
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(indexSpec),
-                response_check=lambda response: True if response.status_code == 200 else False)
+        index = index + 1
+        
 
-    start >> task >> index
+    # start with first task
+    start >> tasks[0]
     
